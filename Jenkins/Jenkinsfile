@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'go build -v -o myapp ./demo'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'go test -v ./demo > test_report.txt'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Add your deployment steps here
+            }
+        }
+
+        stage('Promote') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
+            steps {
+                input message: 'Approve promotion to production?', submitter: 'admin'
+                // Add your production deployment steps here
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                // Add your cleanup steps here
+            }
+        }
+    }
+}
